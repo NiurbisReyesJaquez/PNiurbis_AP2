@@ -1,0 +1,115 @@
+﻿@page "/ConsultaArticulos"
+
+@using Models
+@using BLL
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-4">
+                <div class="form-group">
+                    <label>Filtro</label>
+                    <select class="form-control" @bind="Filtro">
+                        <option value="0">Opciones</option>
+                        <option value="1">ID</option>
+                        <option value="2">Descripcion</option>
+                        <option value="3">Costo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group">
+                    <label>criterio</label>
+                    <input type="text" class="form-control" @bind="Criterio" placeholder="Escriba un criterio" />
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="form-group">
+                    <label> </label>
+                    <button type="button" class="btn btn-lg btn-primary btn-block" @onclick="Consultar">Consultar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Descripcion</th>
+                    <th>Existencia</th>
+                    <th>Costo</th>
+                    <th>Valor inventario</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ListaConsulta)
+                {
+                    <tr>
+                        <td>@item.ArticuloId</td>
+                        <td>@item.Descripcion</td>
+                        <td>@item.Existencia</td>
+                        <td>@item.Costo</td>
+                        <td>@item.ValorInventario</td>
+                        <td><a href="@($"Articulos/{item.ArticuloId}")">Ver</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer">
+        <div class="form-group">
+            <label>Valor inventario</label>
+            <input type="number" class="form-control" @bind="valorinventario" readonly/>
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+    public List<Articulos> ListaConsulta { get; set; } = new List<Articulos>();
+    public int Filtro { get; set; }
+    public string Criterio { get; set; } = string.Empty;
+    public double valorinventario { get; set; }
+
+    public void Consultar()
+    {
+        if (Criterio != string.Empty)
+        {
+            switch (Filtro)
+            {
+                case 0:
+                    ListaConsulta = ArticulosBLL.GetArticulos(p => true);
+                    break;
+                case 1:
+                    int id = Convert.ToInt32(Criterio);
+                    ListaConsulta = ArticulosBLL.GetArticulos(p => p.ArticuloId == id);
+                    break;
+                case 2:
+                    ListaConsulta = ArticulosBLL.GetArticulos(p => p.Descripcion.Contains(Criterio));
+                    break;
+                case 3:
+                    double costo = Convert.ToDouble(Criterio);
+                    ListaConsulta = ArticulosBLL.GetArticulos(p => p.Costo == costo);
+                    break;
+            }
+
+        }
+        else
+        {
+            ListaConsulta = ArticulosBLL.GetArticulos(p => true);
+        }
+        ConsultarInventario();
+    }
+    public void ConsultarInventario()
+    {
+        valorinventario = 0;
+        foreach (var item in ListaConsulta)
+        {
+            valorinventario += item.ValorInventario;
+        }
+    }
+
+    }

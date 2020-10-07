@@ -9,13 +9,13 @@
     <DataAnnotationsValidator />
     <div class="card">
         <div class="card-header">
-            <h3>Registro de Articulos</h3>
+            <h3>Registro de Artículos</h3>
         </div>
         <div class="card-body">
             <form>
                 @*ArticuloId*@
                 <div class="form-group">
-                    <label> ArticuloId</label>
+                    <label> ArtículoId</label>
                     <div class="input-group">
                         <InputNumber class="form-control col-4" @bind-Value="Articulos.ArticuloId"></InputNumber>
                         <ValidationMessage For="@(() => Articulos.ArticuloId)"></ValidationMessage>
@@ -25,7 +25,7 @@
                 </div>
                 @*Descripcion*@
                 <div class="form-group">
-                    <label> Descripcion </label>
+                    <label> Descripción </label>
                     <InputText @bind-Value="Articulos.Descripcion" class="form-control" />
                     <ValidationMessage For="@(() => Articulos.Descripcion)" />
                 </div>
@@ -48,7 +48,7 @@
                 @*ValorInventario*@
                 <div class="form-group">
                     <label>Valor Inventario</label>
-                    <InputNumber @bind-Value="Articulos.ValorInventario" class="form-control" @onfocusin="Calcular" />
+                    <InputNumber @bind-Value="Articulos.ValorInventario" class="form-control" @onfocusin="Calcular" readonly/>
                     <ValidationMessage For="@(() => Articulos.ValorInventario)" />
                 </div>
 
@@ -75,10 +75,22 @@
     {
         Nuevo();
         Buscar();
+        if(ArticuloId > 0)
+            Buscar(ArticuloId);
     }
+
     public void Nuevo()
     {
         Articulos = new Articulos();
+    }
+    public void Buscar(int id)
+    {
+        
+            var encontrado = ArticulosBLL.Buscar(id);
+
+            if (encontrado != null)
+                this.Articulos = encontrado;
+       
     }
     public void Buscar()
     {
@@ -99,6 +111,7 @@
 
         if (guardo)
         {
+            Calcular();
             Nuevo();
             toast.ShowSuccess("Guardado exitosamente");
         }
