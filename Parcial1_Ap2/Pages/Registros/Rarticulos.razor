@@ -1,0 +1,135 @@
+﻿@page "/Articulos"
+@page "/Articulos/{ArticuloId:int}"
+
+@using Models
+@using BLL
+@inject IToastService toast
+
+<EditForm Model="Articulos" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <h3>Registro de Articulos</h3>
+        </div>
+        <div class="card-body">
+            <form>
+                @*ArticuloId*@
+                <div class="form-group">
+                    <label> ArticuloId</label>
+                    <div class="input-group">
+                        <InputNumber class="form-control col-4" @bind-Value="Articulos.ArticuloId"></InputNumber>
+                        <ValidationMessage For="@(() => Articulos.ArticuloId)"></ValidationMessage>
+                        <button type="button" class="btn btn-primary input-group-text" @onclick="Buscar">Buscar</button>
+
+                    </div>
+                </div>
+                @*Descripcion*@
+                <div class="form-group">
+                    <label> Descripcion </label>
+                    <InputText @bind-Value="Articulos.Descripcion" class="form-control" />
+                    <ValidationMessage For="@(() => Articulos.Descripcion)" />
+                </div>
+
+                @*Exitencia*@
+                <div class="form-group">
+                    <label>Existencia</label>
+                    <InputNumber @bind-Value="Articulos.Existencia" class="form-control" @onfocusout="Calcular" />
+                    <ValidationMessage For="@(() => Articulos.Existencia)" />
+                </div>
+
+
+                @*Costo*@
+                <div class="form-group">
+                    <label>Costo</label>
+                    <InputNumber @bind-Value="Articulos.Costo" class="form-control" @onfocusout="Calcular" />
+                    <ValidationMessage For="@(() => Articulos.Costo)" />
+                </div>
+
+                @*ValorInventario*@
+                <div class="form-group">
+                    <label>Valor Inventario</label>
+                    <InputNumber @bind-Value="Articulos.ValorInventario" class="form-control" @onfocusin="Calcular" />
+                    <ValidationMessage For="@(() => Articulos.ValorInventario)" />
+                </div>
+
+
+            </form>
+    </div>
+    <div class="card-footer">
+        <div class="form-group text-center" display: inline-block>
+            <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo"> <span class="oi oi-file"></span> Nuevo </button>
+            <button type="submit" class="btn btn-lg btn-success"> <span class="oi oi-cloud"></span> Guardar </button>
+            <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar"> <span class="oi oi-trash"></span> Eliminar </button>
+        </div>
+        </div>
+    </div>
+
+
+</EditForm>
+@code {
+    [Parameter]
+    public int ArticuloId { get; set; }
+    private Articulos Articulos = new Articulos();
+
+    protected override void OnInitialized()
+    {
+        Nuevo();
+        Buscar();
+    }
+    public void Nuevo()
+    {
+        Articulos = new Articulos();
+    }
+    public void Buscar()
+    {
+        if (Articulos.ArticuloId > 0)
+        {
+            var encontrado = ArticulosBLL.Buscar(Articulos.ArticuloId);
+
+            if (encontrado != null)
+                this.Articulos = encontrado;
+            else
+                toast.ShowWarning("No encontrado");
+        }
+    }
+
+    public void Guardar()
+    {
+        bool guardo = ArticulosBLL.Guardar(Articulos);
+
+        if (guardo)
+        {
+            Nuevo();
+            toast.ShowSuccess("Guardado exitosamente");
+        }
+        else
+        {
+            toast.ShowError("No se pudo guardar");
+        }
+
+    }
+
+    public void Eliminar()
+    {
+        bool elimino = ArticulosBLL.Eliminar(Articulos.ArticuloId);
+
+        if (elimino)
+        {
+            Nuevo();
+            toast.ShowSuccess("Eliminado exitosamente");
+        }
+        else
+        {
+            toast.ShowError("No se pudo eliminar");
+        }
+    }
+
+    public void Calcular()
+    {
+        Articulos.ValorInventario = Articulos.Existencia * Articulos.Costo;
+    }
+
+
+
+}
+
